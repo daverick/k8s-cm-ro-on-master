@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: testcm
+data:
+  test.txt: "toto"
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: test5    
+  labels:
+    test: test
+spec:
+  replicas: 6 
+  selector:
+    matchLabels:
+      deploy: test5
+  template:
+    metadata:
+      labels:
+        test: test
+        deploy: test5
+    spec:
+        containers:
+        - name: main
+          image: busybox
+          command:
+          - /bin/sh
+          - -c
+          args: 
+          - mount | grep src && echo 'done'
+          volumeMounts:
+          - name: volumetest
+            mountPath: /src
+        volumes:
+        - name: volumetest
+          configMap: 
+            name: testcm
+            defaultMode: 420
